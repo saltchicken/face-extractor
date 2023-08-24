@@ -40,6 +40,7 @@ def main(args):
   input = args["input"]
   output = args["output"]
   padding = float(args["padding"])
+  skip = int(args["skip"])
 
   files = getFiles(args['input'])
 
@@ -57,8 +58,13 @@ def main(args):
     if mime.startswith('video'):
       print('[INFO] extracting frames from video...')
       video = cv2.VideoCapture(path)
+      count = 0
       while True:
         success, frame = video.read()
+        if count < skip and skip > 0:
+          count += 1
+          continue
+        count = 0
         if success and isinstance(frame, np.ndarray):
           image = {
             "file": frame,
@@ -130,6 +136,7 @@ if __name__ == "__main__":
   parser.add_argument("-i", "--input", required=True, help="path to input directory or file")
   parser.add_argument("-o", "--output", default="output/", help="path to output directory")
   parser.add_argument("-p", "--padding", default=1.0, help="padding ratio around the face (default: 1.0)")
+  parser.add_argument("-s", "--skip", default=0, help="amount of frames to skip in between captures")
   
   args = vars(parser.parse_args())
   main(args)
